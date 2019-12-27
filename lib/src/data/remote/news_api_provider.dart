@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:hacker_news/src/data/models/item_model.dart';
+import 'package:hacker_news/src/data/news_repository.dart';
 import 'package:http/http.dart';
 
-class NewsApiProvider {
+class NewsApiProvider implements NewsSource {
   static const BASE_URL = 'https://hacker-news.firebaseio.com/';
   static const API_VERSION = 'v0';
 
@@ -14,12 +15,14 @@ class NewsApiProvider {
 
   Client client = Client();
 
+  @override
   Future<List<int>> fetchTopIds() async {
     final response = await client.get(_buildTopIdUrl());
     final ids = jsonDecode(response.body);
     return ids.cast<int>();
   }
 
+  @override
   Future<ItemModel> fetchItem(int id) async {
     final response = await client.get(_buildItemUrl(id));
     final parsedJson = jsonDecode(response.body);

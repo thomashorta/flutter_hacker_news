@@ -5,21 +5,42 @@ import 'package:hacker_news/src/data/models/item_model.dart';
 import 'package:hacker_news/src/data/remote/news_api_provider.dart';
 
 class NewsRepository {
-  NewsDbProvider dbProvider = NewsDbProvider();
-  NewsApiProvider apiProvider = NewsApiProvider();
+  List<NewsSource> sources = <NewsSource>[
+    newsDbProvider,
+    NewsApiProvider(),
+  ];
+
+  List<NewsCache> caches = <NewsCache>[
+    newsDbProvider,
+  ];
 
   Future<List<int>> fetchTopIds() async {
-    return await apiProvider.fetchTopIds();
+    // Todo: Iterate over sources when DbProvider implements fetchTopIds()
+    return await sources[1].fetchTopIds();
   }
 
   Future<ItemModel> fetchItem(int id) async {
-    var item = await dbProvider.fetchItem(id);
+    ItemModel item;
+    NewsSource source;
 
-    if (item == null) {
-      item = await apiProvider.fetchItem(id);
-      dbProvider.addItem(item);
+    for (source in sources) {
+      item = await source.fetchItem(id);
+      if (item != null) break;
+    }
+
+    for (var cache in caches) {
+      if (!identical(cache, source)) cache.addItem(item);
     }
 
     return item;
   }
+}
+
+abstract class NewsSource {
+  Future<List<int>> fetchTopIds();
+  Future<ItemModel> fetchItem(int id);
+}
+
+abstract class NewsCache {
+  Future<int> addItem(ItemModel item);
 }

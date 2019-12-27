@@ -1,12 +1,17 @@
 import 'package:hacker_news/src/data/models/item_model.dart';
+import 'package:hacker_news/src/data/news_repository.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:async';
 
-class NewsDbProvider {
+class NewsDbProvider implements NewsSource, NewsCache {
   Database db;
+
+  NewsDbProvider() {
+    init();
+  }
 
   void init() async {
     Directory documentsDir = await getApplicationDocumentsDirectory();
@@ -16,8 +21,8 @@ class NewsDbProvider {
       path,
       version: 1,
       onCreate: (Database newDb, int version) {
-        newDb.execute(""""
-          CREATE TABLE Items
+        newDb.execute("""
+          CREATE TABLE items
           (
             id INTEGER PRIMARY KEY,
             deleted INTEGER,
@@ -29,18 +34,25 @@ class NewsDbProvider {
             parent INTEGER,
             kids BLOB,
             url TEXT,
-            score INT,
+            score INTEGER,
             title TEXT,
             descendants INTEGER
-          )
+          );
         """);
       },
     );
   }
 
+  // Todo: store and fetch top ids
+  @override
+  Future<List<int>> fetchTopIds() {
+    return null;
+  }
+
+  @override
   Future<ItemModel> fetchItem(int id) async {
     final maps = await db.query(
-      'Items',
+      'items',
       columns: null,
       where: 'id = ?',
       whereArgs: [id],
@@ -53,10 +65,14 @@ class NewsDbProvider {
     }
   }
 
+  @override
   Future<int> addItem(ItemModel item) {
     return db.insert(
-      'Items',
+      'items',
       item.toMapForDb(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 }
+
+final newsDbProvider = NewsDbProvider();
