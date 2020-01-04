@@ -27,14 +27,20 @@ class NewsListScreen extends StatelessWidget {
           );
         } else {
           final List<int> topIds = snapshot.data;
-          return ListView.builder(
-            itemCount: topIds.length,
-            itemBuilder: (context, index) {
-              bloc.fetchItem(topIds[index]);
-              return NewsListItem(
-                itemId: topIds[index],
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              await bloc.clearCache();
+              await bloc.fetchTopIds();
             },
+            child: ListView.builder(
+              itemCount: topIds.length,
+              itemBuilder: (context, index) {
+                bloc.fetchItem(topIds[index]);
+                return NewsListItem(
+                  itemId: topIds[index],
+                );
+              },
+            ),
           );
         }
       },

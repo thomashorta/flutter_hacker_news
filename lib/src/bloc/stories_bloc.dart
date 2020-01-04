@@ -27,6 +27,10 @@ class StoriesBloc extends Bloc {
     _topIds.add(ids);
   }
 
+  clearCache() async {
+    await _repository.clearCache();
+  }
+
   _itemsTransformer() {
     return ScanStreamTransformer(
       (Map<int, Future<ItemModel>> cache, int id, _) {

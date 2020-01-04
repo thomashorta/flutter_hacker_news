@@ -34,6 +34,12 @@ class NewsRepository {
 
     return item;
   }
+
+  Future clearCache() async {
+    for (var cache in caches) {
+      await cache.clear();
+    }
+  }
 }
 
 abstract class NewsSource {
@@ -43,4 +49,5 @@ abstract class NewsSource {
 
 abstract class NewsCache {
   Future<int> addItem(ItemModel item);
+  Future<int> clear();
 }

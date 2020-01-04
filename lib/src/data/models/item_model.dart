@@ -26,9 +26,9 @@ class ItemModel {
         parent = parsedJson['parent'],
         kids = parsedJson['kids'] ?? [],
         url = parsedJson['url'],
-        score = parsedJson['score'],
+        score = parsedJson['score'] ?? 0,
         title = parsedJson['title'],
-        descendants = parsedJson['descendants'];
+        descendants = parsedJson['descendants'] ?? 0;
 
   ItemModel.fromDb(Map<String, dynamic> dbMap)
       : id = dbMap['id'],
@@ -41,9 +41,9 @@ class ItemModel {
         parent = dbMap['parent'],
         kids = jsonDecode(dbMap['kids']),
         url = dbMap['url'],
-        score = dbMap['score'],
+        score = dbMap['score'] ?? 0,
         title = dbMap['title'],
-        descendants = dbMap['descendants'];
+        descendants = dbMap['descendants'] ?? 0;
 
   Map<String, dynamic> toMapForDb() {
     return <String, dynamic>{

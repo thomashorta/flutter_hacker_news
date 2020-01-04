@@ -13,26 +13,32 @@ class NewsListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<StoriesBloc>(context);
 
-    return StreamBuilder(
-      stream: bloc.items,
-      builder: (context, AsyncSnapshot<Map<int, Future<ItemModel>>> snapshot) {
-        if (!snapshot.hasData) {
-          return LoadingListItem();
-        } else {
-          final items = snapshot.data;
+    return Column(
+      children: <Widget>[
+        StreamBuilder(
+          stream: bloc.items,
+          builder:
+              (context, AsyncSnapshot<Map<int, Future<ItemModel>>> snapshot) {
+            if (!snapshot.hasData) {
+              return LoadingListItem();
+            } else {
+              final items = snapshot.data;
 
-          return FutureBuilder(
-            future: items[itemId],
-            builder: (context, AsyncSnapshot<ItemModel> itemSnapshot) {
-              if (!itemSnapshot.hasData) {
-                return LoadingListItem();
-              } else {
-                return _buildListItem(itemSnapshot.data);
-              }
-            },
-          );
-        }
-      },
+              return FutureBuilder(
+                future: items[itemId],
+                builder: (context, AsyncSnapshot<ItemModel> itemSnapshot) {
+                  if (!itemSnapshot.hasData) {
+                    return LoadingListItem();
+                  } else {
+                    return _buildListItem(itemSnapshot.data);
+                  }
+                },
+              );
+            }
+          },
+        ),
+        Divider(),
+      ],
     );
   }
 
